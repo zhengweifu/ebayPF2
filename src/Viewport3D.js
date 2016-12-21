@@ -15,7 +15,7 @@ class Viewport3D {
 
         this.camera = new THREE.PerspectiveCamera(53, this.width / this.height, 0.01, 5000);
 
-        this.camera.position.set(0, 0, 15);
+        this.camera.position.set(0, 0, 200);
 
 
 		this.renderer = new THREE.WebGLRenderer({canvas : this.canvas, alpha: true, antialias: true});
@@ -26,7 +26,7 @@ class Viewport3D {
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         // console.log(this.controls);
         this.controls.minDistance = 0;
-        this.controls.maxDistance = 200;
+        this.controls.maxDistance = 400;
         this.controls.zoomSpeed = 2;
         this.controls.noPan = true;
         // this.controls.autoRotate = true;

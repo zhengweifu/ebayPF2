@@ -37,6 +37,9 @@ const requestFullScreen = (element) => {
 		if(path !== null) {
 			const imageUrl = `${WEB_ROOT}assets/case/${window.Z_PROPS.svgID}/panoramas/${path.id}.jpg`;
 			new THREE.TextureLoader().load(imageUrl, (_texture) => {
+				_texture.wrapS = THREE.RepeatWrapping;
+				_texture.repeat.x = -1;
+				_texture.anisotropy = 8;
 				_texture.needsUpdate = true;
 				window.Z_PROPS.parent3d.style.display = 'block';
 				if(viewport3d === undefined) {
