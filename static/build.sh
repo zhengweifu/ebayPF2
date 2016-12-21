@@ -1,0 +1,1 @@
+uglifyjs three.js OrbitControls.js -o three.min.js -c -m
