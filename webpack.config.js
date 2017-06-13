@@ -1,5 +1,6 @@
 var webpack = require('webpack');
 var path = require('path');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var env = process.env.NODE_ENV;
 
@@ -50,9 +51,10 @@ var config = {
             'process.env.NODE_ENV': JSON.stringify(env)
         }),
         new webpack.NoErrorsPlugin(),
-        // new htmlWebpackPlugin({
-        //     titile: '简易工具'
-        // })
+        new HtmlWebpackPlugin({
+            hash: true,
+            template: 'htmls/index.html'
+        })
     ]
 };
 

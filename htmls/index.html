@@ -12,38 +12,6 @@
 		width: 100%;
 		height: 100%;
 	}
-	#viewport-2d-g {
-		position: relative;
-		width: 100%;
-		height: 100%;
-		border: 1px solid rgba(0, 0, 0, 0.3);
-		box-sizing: border-box;
-		overflow: hidden;
-		text-align: center;
-	}
-
-	#viewport-3d-p {
-		display: none;
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0px;
-		left: 0px;
-		z-index: 10;
-		background-color: rgba(0, 0, 0, 0.5);
-	}
-
-	#viewport-3d-c {
-		position: absolute;
-		width: 80%;
-		height: 80%;
-		top: 0px;
-		bottom: 0px;
-		left: 0px;
-		right: 0px;
-		margin: auto;
-		/*background-color: #fff;*/
-	}
 
 	#viewport-3d-g {
 		position: relative;
@@ -51,26 +19,6 @@
 		height: 100%;
 		top: 0px;
 		left: 0px;
-	}
-
-	#close-3d {
-		color: #f00;
-		font: 30px/100% arial, sans-serif;
-		position: absolute;
-		right: 5px;
-		text-decoration: none;
-		text-shadow: 0 1px 0 #fff;
-		top: 5px;
-	}
-
-	#close-3d:after{
-		content: "×";
-	}
-
-	#full-screen-3d {
-		position: absolute;
-		bottom: 10px;
-		right: 10px;
 	}
 
 	#viewport-3d {
@@ -89,44 +37,27 @@
 	</style>
 </head>
 <body>
-<div id="viewport-2d-g">
-	<canvas id="viewport-2d"></canvas>
+<div id="viewport-3d-g">
+	<canvas id="viewport-3d"></canvas>
 </div>
-<div id="viewport-3d-p">
-	<div id="viewport-3d-c"><div id="viewport-3d-g">
-		<canvas id="viewport-3d"></canvas>
-		<a href="#" id="close-3d"></a>
-		<img id="full-screen-3d" width=32 height=32 src='../assets/icons/fullscreen.png'/>
-	</div></div>
-</div>
-<script type="text/javascript" src="../static/fabric.min.js"></script>
 <script type="text/javascript" src="../static/three.min.js"></script>
 <script type="text/javascript">
 (function(){
 	var url = window.location.search;
 	var _request = new Object();
 	if (url.indexOf("?") != -1) {
+		
 		var str = url.substr(1);
 		strs = str.split("&");
 		for(var i = 0; i < strs.length; i ++) {
 			_request[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
 		}
 	}
-
 	window.Z_PROPS = _request;
 	window.Z_PROPS.canvas2d = document.getElementById('viewport-2d');
 	window.Z_PROPS.canvas3d = document.getElementById('viewport-3d');
-	window.Z_PROPS.parent3d = document.getElementById('viewport-3d-p');
-	window.Z_PROPS.fullscreen3d = document.getElementById('full-screen-3d');
-   	window.Z_PROPS.svgSize = parseInt(window.Z_PROPS.svgSize);
-   	if(isNaN(window.Z_PROPS.svgSize)) {
-   		window.Z_PROPS.svgSize = 4096;
-   	}
-   	document.getElementById('close-3d').addEventListener('click', function(event) {
-   		window.Z_PROPS.parent3d.style.display = 'none';
-   	}, false);
 })();
 </script>
-<script type="text/javascript" src="../dist/index.bundle.js"></script>
+<!-- <script type="text/javascript" src="../dist/index.bundle.js"></script> -->
 </body>
 </html>

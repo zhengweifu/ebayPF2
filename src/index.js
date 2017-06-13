@@ -1,60 +1,76 @@
-import Viewport2D from './Viewport2D';
-
 import Viewport3D from './Viewport3D';
+
+import ProjectLoader from './ProjectLoader';
 
 import { WEB_ROOT } from './config';
 
-const requestFullScreen = (element) => {
-    // Supports most browsers and their versions.
-    let requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
+import { LoadMeshForCO } from './ZUtils/LoadMeshForGenerator';
 
-    if (requestMethod) { // Native full screen.
-        requestMethod.call(element);
-    } else if (typeof window.ActiveXObject !== 'undefined') { // Older IE.
-        let wscript = new ActiveXObject('WScript.Shell');
-        if (wscript !== null) {
-            wscript.SendKeys('{F11}');
+import co from 'co';
+
+class Overly {
+	constructor() {
+		this.createOverly();
+	}
+
+	/**
+	 * 创建蒙版
+	 */
+	createOverly(url) {
+	     // 加入蒙版
+	    this.overly = document.createElement('div');
+	    this.overly.style.position = 'fixed';
+	    this.overly.style.top = '0px';
+	    this.overly.style.left = '-100%';
+	    this.overly.style.width = '100%';
+	    this.overly.style.height = '100%';
+	    this.overly.style.zIndex = '999';
+	    this.overly.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+
+	    let logoElement = new Image();
+	    logoElement.onload = () => {
+	        this.overly.appendChild(logoElement);
+	    };
+	    logoElement.src = url !== undefined ? url : `${WEB_ROOT}assets/icons/loading.gif`;
+
+	    logoElement.style.position = 'absolute';
+	    logoElement.style.top = 0;
+	    logoElement.style.bottom = 0;
+	    logoElement.style.left = 0;
+	    logoElement.style.right = 0;
+	    logoElement.style.margin = 'auto';
+
+	    document.body.appendChild(this.overly);
+	}
+
+	/**
+     * 设置蒙版的显示或者隐藏
+     * @param {Bool} visible 显示或者隐藏
+     */
+    setOverlyVisible(visible) {
+        if(visible) {
+            this.overly.style.left = '0px';
+        } else {
+            this.overly.style.left = '-100%';
         }
     }
-};
+}
 
 (() => {
-	const size = window.Z_PROPS.svgSize;
-	const _size = window.document.body.clientWidth > window.document.body.clientHeight ? window.document.body.clientHeight : window.document.body.clientWidth;
-
-
-	let viewport2d = new Viewport2D(window.Z_PROPS.canvas2d, {
-		width: size,
-		height: size,
-		zoom: _size / size,
-		bgURL: `${WEB_ROOT}assets/case/${window.Z_PROPS.svgID}/${window.Z_PROPS.svgID}.jpg`,
-		svgURL: `${WEB_ROOT}assets/case/${window.Z_PROPS.svgID}/${window.Z_PROPS.svgID}.svg`
-	});
-
+	let overly = new Overly();
+	overly.setOverlyVisible(true);
 	let viewport3d;
-
-	viewport2d.onMouseUp = (path) => {
-		if(path !== null) {
-			const imageUrl = `${WEB_ROOT}assets/case/${window.Z_PROPS.svgID}/panoramas/${path.id}.jpg`;
-			new THREE.TextureLoader().load(imageUrl, (_texture) => {
-				_texture.wrapS = THREE.RepeatWrapping;
-				_texture.repeat.x = -1;
-				_texture.anisotropy = 8;
-				_texture.needsUpdate = true;
-				window.Z_PROPS.parent3d.style.display = 'block';
-				if(viewport3d === undefined) {
-					viewport3d = new Viewport3D(window.Z_PROPS.canvas3d);
-				}
-				viewport3d.envSphereMaterial.map = _texture;
-				viewport3d.envSphereMaterial.needsUpdate = true;
+	const projectUrl = `${WEB_ROOT}assets/case/${window.Z_PROPS.caseID}/${window.Z_PROPS.sectionID}/project.json`;
+	const htmlUrl = window.location.origin + window.location.pathname;
+	ProjectLoader.parse(projectUrl, (data) => {
+		if(viewport3d === undefined) {
+			viewport3d = new Viewport3D(window.Z_PROPS.canvas3d, {
+				pre_href:  htmlUrl + '?caseID=' + window.Z_PROPS.caseID + '&sectionID=',
+				geometries: data.geometries
 			});
 		}
-		// console.log(path);
-	};
-
-	window.Z_PROPS.fullscreen3d.addEventListener('click', (event) => {
-		requestFullScreen(window.Z_PROPS.canvas3d.parentNode);
-	}, false);
-
+		viewport3d.envSphereMaterial.map = data.texture;
+		viewport3d.envSphereMaterial.needsUpdate = true;
+		overly.setOverlyVisible(false);
+	});
 })();
-

@@ -1,0 +1,8 @@
+{
+	"env": "env.jpg",
+	"meshes": [
+		"meshes/floor.mesh",
+		"meshes/29899.mesh",
+		"meshes/29916.mesh"
+	]
+}
