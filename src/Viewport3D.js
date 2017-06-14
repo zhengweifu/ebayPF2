@@ -7,8 +7,12 @@ class Viewport3D {
 
         this.pre_href = options.pre_href;
 
+        this.href = undefined;
+
 		this.width = this.canvas.clientWidth;
 		this.height = this.canvas.clientHeight;
+
+        this.clock = new THREE.Clock();
 
         this.objects = [];
 
@@ -58,8 +62,26 @@ class Viewport3D {
         // this.controls.autoRotate = true;
         // this.controls.autoRotateSpeed = 0.2;
 
+        // camera animation
+        this.cameraMixer = new THREE.AnimationMixer(this.camera);
+        let cameraStartTracks = [
+            new THREE.NumberKeyframeTrack('.position', [0, 2], [0, 800, 200, 0, 0, 200]),
+            new THREE.NumberKeyframeTrack('.quaternion', [0, 2], [-0.7, 0, 0, 0.7, 0, 0, 0, 1])
+            
+        ];
+        this.cameraStartClip = new THREE.AnimationClip('Action', -1, cameraStartTracks);
+
+
+        this.cameraMixer.addEventListener('finished', (e) => {
+            // console.log(e);
+            if(this.href !== undefined) {
+                window.location.href = this.href;
+            }
+        });
+
         this.sectionTipParent = document.createElement('div');
         this.sectionTipParent.style.position = 'absolute';
+        this.sectionTipParent.style.zIndex = 3;
         this.sectionTipParent.style.backgroundColor = 'rgba(0, 0, 0, 1)';
         this.sectionTipParent.style.color = 'rgba(255, 255, 255, 1)';
         this.sectionTipParent.style.padding = '5px 10px';
@@ -91,13 +113,28 @@ class Viewport3D {
         this.renderLoop();
 	}
 
+    aniActionPlay(mixer, clip) {
+        let action = mixer.clipAction(clip);
+        action.setLoop(THREE.LoopOnce);
+        action.play();
+    }
+
+    updateAnimationMixer(mixer) {
+        const delta = this.clock.getDelta();
+        if (mixer) {
+            mixer.update(delta);
+        }
+    }
+
 	render() {
 		this.scene.updateMatrixWorld();
         this.camera.updateProjectionMatrix();
-        // console.log('dddddd')
+
+        this.updateAnimationMixer(this.cameraMixer);
+
         this.renderer.clear();
 
-        this.controls.update();
+        // this.controls.update();
 
         this.resizeWindow(this.canvas.parentNode.clientWidth, this.canvas.parentNode.clientHeight);
 
@@ -216,7 +253,12 @@ class Viewport3D {
         if ( this.onDownPosition.distanceTo( this.onUpPosition ) === 0 ) {
             if(this.cacheObject) {
                 if(this.pre_href) {
-                    window.location.href = this.pre_href + this.cacheObject.geometry.name;
+                    let tracks = [
+                        new THREE.NumberKeyframeTrack('.position', [0, 0.5], [this.camera.position.x, this.camera.position.y, this.camera.position.z, 0, 0, -500]),
+                    ];
+                    let aniClip = new THREE.AnimationClip('Action_t', -1, tracks);
+                    this.aniActionPlay(this.cameraMixer, aniClip);
+                    this.href = this.pre_href + this.cacheObject.geometry.name;
                 }
             }
         }

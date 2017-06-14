@@ -72,5 +72,6 @@ class Overly {
 		viewport3d.envSphereMaterial.map = data.texture;
 		viewport3d.envSphereMaterial.needsUpdate = true;
 		overly.setOverlyVisible(false);
+		viewport3d.aniActionPlay(viewport3d.cameraMixer, viewport3d.cameraStartClip);
 	});
 })();

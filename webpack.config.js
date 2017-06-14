@@ -53,7 +53,7 @@ var config = {
         new webpack.NoErrorsPlugin(),
         new HtmlWebpackPlugin({
             hash: true,
-            template: 'htmls/index.html'
+            template: 'htmls/template.html'
         })
     ]
 };
