@@ -86,6 +86,7 @@ class Viewport3D {
         this.sectionTipParent.style.color = 'rgba(255, 255, 255, 1)';
         this.sectionTipParent.style.padding = '5px 10px';
         this.sectionTipParent.style.borderRadius = '5px';
+        this.sectionTipParent.style.pointerEvents = 'none';
         this.sectionTipParent.innerText = 'section';
         this.canvas.parentNode.appendChild(this.sectionTipParent);
 
@@ -210,8 +211,8 @@ class Viewport3D {
 
     onMouseMove(event) {
         const array = this.getMousePosition( event.clientX, event.clientY );
-        this.sectionTipParent.style.left = array[0] * this.width + 'px';
-        this.sectionTipParent.style.top = array[1] * this.height + 'px';
+        this.sectionTipParent.style.left = array[0] * (this.width + 5) + 'px';
+        this.sectionTipParent.style.top = array[1] * (this.height + 5) + 'px';
         const point = new THREE.Vector2().fromArray(array);
         const intersects = this.getIntersects( point, this.objects );
         if(intersects.length > 0) {
