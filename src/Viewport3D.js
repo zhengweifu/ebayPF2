@@ -32,7 +32,7 @@ class Viewport3D {
         
         for(let geo of options.geometries) {
             // console.log(geo);
-            let sectionMaterial = new THREE.MeshBasicMaterial({color: 0xff00ff, side: 0, wireframe: false, transparent: true, opacity: 0.0});
+            let sectionMaterial = new THREE.MeshBasicMaterial({color: 0xff00fc, side: 0, wireframe: false, transparent: true, opacity: 0});
             let sectionMesh = new THREE.Mesh(geo, sectionMaterial);
 
             topGroup.add(sectionMesh);
@@ -55,7 +55,7 @@ class Viewport3D {
 
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         // console.log(this.controls);
-        this.controls.minDistance = 0;
+        this.controls.minDistance = 100;
         this.controls.maxDistance = 400;
         this.controls.zoomSpeed = 2;
         this.controls.enablePan = false;
@@ -93,6 +93,8 @@ class Viewport3D {
         this.setEnabled(false);
 
         this.raycaster = new THREE.Raycaster();
+
+        this.actionCenter = new THREE.Vector3();
 
         this.mouse = new THREE.Vector2();
 
@@ -182,7 +184,7 @@ class Viewport3D {
                 } else {
                     this.sectionTipParent.innerText = 'section ' + name;
                 }
-                material.opacity = 0.5;
+                material.opacity = 0.4;
             } else {
                 material.opacity = 0.0;
             }
@@ -216,9 +218,11 @@ class Viewport3D {
         const point = new THREE.Vector2().fromArray(array);
         const intersects = this.getIntersects( point, this.objects );
         if(intersects.length > 0) {
-            let inters = intersects[0];
-            if(this.cacheObject != inters.object) {
-                this.cacheObject = inters.object;
+            let intersect = intersects[0];
+            if(this.cacheObject != intersect.object) {
+                this.cacheObject = intersect.object;
+                this.actionCenter.copy(this.cacheObject.geometry.boundingBox.center());
+                this.actionCenter.applyMatrix4(this.cacheObject.matrixWorld);
                 this.setEnabled(true);
             }
         } else {
@@ -254,8 +258,29 @@ class Viewport3D {
         if ( this.onDownPosition.distanceTo( this.onUpPosition ) === 0 ) {
             if(this.cacheObject) {
                 if(this.pre_href) {
+                    let quaternion = new THREE.Quaternion();
+                    let m1 = new THREE.Matrix4();
+                    m1.lookAt(this.camera.position, this.actionCenter, this.camera.up);
+                    quaternion.setFromRotationMatrix(m1);
                     let tracks = [
-                        new THREE.NumberKeyframeTrack('.position', [0, 0.5], [this.camera.position.x, this.camera.position.y, this.camera.position.z, 0, 0, -500]),
+                        new THREE.NumberKeyframeTrack('.position', [0.3, 1.0], [
+                            this.camera.position.x, 
+                            this.camera.position.y, 
+                            this.camera.position.z,
+                            this.actionCenter.x, 
+                            this.actionCenter.y, 
+                            this.actionCenter.z
+                        ]),
+                        new THREE.NumberKeyframeTrack('.quaternion', [0, 0.3], [
+                            this.camera.quaternion.x,
+                            this.camera.quaternion.y,
+                            this.camera.quaternion.z,
+                            this.camera.quaternion.w,
+                            quaternion.x,
+                            quaternion.y,
+                            quaternion.z,
+                            quaternion.w,
+                        ])
                     ];
                     let aniClip = new THREE.AnimationClip('Action_t', -1, tracks);
                     this.aniActionPlay(this.cameraMixer, aniClip);

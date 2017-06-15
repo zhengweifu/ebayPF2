@@ -8,15 +8,17 @@ import { LoadMeshForCO } from './ZUtils/LoadMeshForGenerator';
 
 import co from 'co';
 
+const selfmm = 'ebay+2017+demo';
+
 class Overly {
-	constructor() {
-		this.createOverly();
+	constructor(url = undefined, isLogin = false) {
+		this.createOverly(url, isLogin);
 	}
 
 	/**
 	 * 创建蒙版
 	 */
-	createOverly(url) {
+	createOverly(url, isLogin = false) {
 	     // 加入蒙版
 	    this.overly = document.createElement('div');
 	    this.overly.style.position = 'fixed';
@@ -24,14 +26,44 @@ class Overly {
 	    this.overly.style.left = '-100%';
 	    this.overly.style.width = '100%';
 	    this.overly.style.height = '100%';
-	    this.overly.style.zIndex = '999';
-	    this.overly.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+	    this.overly.style.zIndex = isLogin ? '1000' : '999';
+	    this.overly.style.backgroundColor = 'rgba(255, 255, 255, 1)';
 
-	    let logoElement = new Image();
-	    logoElement.onload = () => {
-	        this.overly.appendChild(logoElement);
-	    };
-	    logoElement.src = url !== undefined ? url : `${WEB_ROOT}assets/icons/loading.gif`;
+	    let logoElement;
+	    if(isLogin) {
+	    	logoElement = document.createElement('div');
+	    	logoElement.style.width = '200px';
+	    	logoElement.style.height = '50px';
+
+			let sElement = document.createElement('span');
+			sElement.innerText = '输入密码：';
+			sElement.style.height = '30px';
+			logoElement.appendChild(sElement);
+
+			let iElement = document.createElement('input');
+			iElement.type = 'password';
+			iElement.style.width = '200px';
+	    	iElement.style.height = '20px';
+	    	logoElement.appendChild(iElement);
+
+	    	iElement.addEventListener('change', (e) => {
+	    		if(e.target.value === selfmm) {
+	    			this.setOverlyVisible(false);
+	    			let selfmmEle = window.parent.document.getElementById('self-mm');
+	    			if(selfmmEle) {
+	    				selfmmEle.value = selfmm;
+	    			}
+	    		}
+	    	}, false);
+
+	    	this.overly.appendChild(logoElement);
+	    } else {
+		    logoElement = new Image();
+		    logoElement.onload = () => {
+		        this.overly.appendChild(logoElement);
+		    };
+		    logoElement.src = url !== undefined ? url : `${WEB_ROOT}assets/icons/loading.gif`;
+		}
 
 	    logoElement.style.position = 'absolute';
 	    logoElement.style.top = 0;
@@ -57,6 +89,12 @@ class Overly {
 }
 
 (() => {
+	let selfmmEle = window.parent.document.getElementById('self-mm');
+	if(selfmmEle && selfmmEle.value == selfmm) {} else {
+		let overlymm = new Overly(undefined, true);
+		overlymm.setOverlyVisible(true);
+	}
+
 	let overly = new Overly();
 	overly.setOverlyVisible(true);
 	let viewport3d;
